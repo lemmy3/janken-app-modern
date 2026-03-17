@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Trophy, RefreshCw, Sparkles, Zap, Heart, Crown } from 'lucide-react';
 
 type Hand = 'rock' | 'paper' | 'scissors';
 type Result = 'win' | 'lose' | 'draw';
@@ -67,11 +66,11 @@ export default function Home() {
         {/* ヘッダー */}
         <header className="text-center mb-8 md:mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Sparkles className="w-8 h-8 text-yellow-300" />
+            <span className="text-2xl text-yellow-300">✨</span>
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               じゃんけんバトル
             </h1>
-            <Sparkles className="w-8 h-8 text-yellow-300" />
+            <span className="text-2xl text-yellow-300">✨</span>
           </div>
           <p className="text-gray-300 text-lg">モダンなUIでCPUとじゃんけん対戦！</p>
         </header>
@@ -163,17 +162,17 @@ export default function Home() {
 
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="text-center p-4 bg-gradient-to-b from-green-500/20 to-emerald-600/20 rounded-2xl">
-                <Crown className="w-8 h-8 mx-auto mb-2 text-green-400" />
+                <div className="text-3xl mb-2">👑</div>
                 <div className="text-3xl font-bold text-green-400">{score.win}</div>
                 <div className="text-gray-300">勝ち</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-b from-red-500/20 to-rose-600/20 rounded-2xl">
-                <Trophy className="w-8 h-8 mx-auto mb-2 text-red-400" />
+                <div className="text-3xl mb-2">🏆</div>
                 <div className="text-3xl font-bold text-red-400">{score.lose}</div>
                 <div className="text-gray-300">負け</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-b from-yellow-500/20 to-amber-600/20 rounded-2xl">
-                <Zap className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
+                <div className="text-3xl mb-2">⚡</div>
                 <div className="text-3xl font-bold text-yellow-400">{score.draw}</div>
                 <div className="text-gray-300">あいこ</div>
               </div>
