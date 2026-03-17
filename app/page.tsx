@@ -8,6 +8,53 @@ type Result = 'win' | 'lose' | 'draw';
 const handEmojis = { rock: '✊', paper: '✋', scissors: '✌️' };
 const handNames = { rock: 'グー', paper: 'パー', scissors: 'チョキ' };
 
+const styles = {
+  container: {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    color: 'white',
+    padding: '1rem',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  },
+  header: {
+    textAlign: 'center' as const,
+    marginBottom: '2rem'
+  },
+  title: {
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    background: 'linear-gradient(90deg, #ff6b6b, #4ecdc4)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: '1rem 0'
+  },
+  gameArea: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '1.5rem',
+    padding: '1.5rem',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    maxWidth: '1200px',
+    margin: '0 auto'
+  },
+  handButton: {
+    padding: '1.5rem',
+    fontSize: '3rem',
+    borderRadius: '1rem',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: 'white'
+  },
+  result: {
+    padding: '1.5rem',
+    borderRadius: '1rem',
+    marginTop: '1rem',
+    textAlign: 'center' as const
+  }
+};
+
 export default function Home() {
   const [playerHand, setPlayerHand] = useState<Hand | null>(null);
   const [cpuHand, setCpuHand] = useState<Hand | null>(null);
@@ -60,160 +107,146 @@ export default function Home() {
     resetGame();
   };
 
+  const getResultColor = () => {
+    if (!result) return '#4a5568';
+    if (result === 'win') return '#2d3748';
+    if (result === 'lose') return '#2d3748';
+    return '#2d3748';
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* ヘッダー */}
-        <header className="text-center mb-8 md:mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-2xl text-yellow-300">✨</span>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              じゃんけんバトル
-            </h1>
-            <span className="text-2xl text-yellow-300">✨</span>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={styles.title}>じゃんけんバトル</h1>
+        <p style={{ color: '#a0aec0' }}>シンプルなじゃんけんゲーム</p>
+      </div>
+
+      <div style={styles.gameArea}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+          {(['rock', 'paper', 'scissors'] as Hand[]).map(hand => (
+            <button
+              key={hand}
+              onClick={() => play(hand)}
+              disabled={cpuThinking}
+              style={{
+                ...styles.handButton,
+                backgroundColor: playerHand === hand ? '#4299e1' : 'rgba(255, 255, 255, 0.1)',
+                opacity: cpuThinking ? 0.5 : 1
+              }}
+            >
+              {handEmojis[hand]}
+              <div style={{ fontSize: '0.875rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
+                {handNames[hand]}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {cpuThinking && (
+          <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{
+                width: '1.5rem',
+                height: '1.5rem',
+                border: '2px solid #ed64a6',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <span style={{ color: '#a0aec0' }}>CPUが考え中…</span>
+            </div>
           </div>
-          <p className="text-gray-300 text-lg">モダンなUIでCPUとじゃんけん対戦！</p>
-        </header>
+        )}
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* 対戦エリア */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-center mb-8">対戦</h2>
-            
-            {/* 手の選択 */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              {(['rock', 'paper', 'scissors'] as Hand[]).map(hand => (
-                <button
-                  key={hand}
-                  onClick={() => play(hand)}
-                  disabled={cpuThinking}
-                  className={`p-6 rounded-2xl text-4xl transition-all ${
-                    playerHand === hand
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/50'
-                      : 'bg-white/10 hover:bg-white/20'
-                  } disabled:opacity-50`}
-                >
-                  {handEmojis[hand]}
-                  <div className="text-sm mt-2 font-bold">{handNames[hand]}</div>
-                </button>
-              ))}
+        {playerHand && cpuHand && result && (
+          <div style={{ ...styles.result, backgroundColor: getResultColor() }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ color: '#a0aec0', marginBottom: '0.5rem' }}>あなた</div>
+                <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#63b3ed' }}>{handEmojis[playerHand]}</div>
+                <div style={{ fontSize: '1.125rem' }}>{handNames[playerHand]}</div>
+              </div>
+              <div>
+                <div style={{ color: '#a0aec0', marginBottom: '0.5rem' }}>CPU</div>
+                <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#ed64a6' }}>{handEmojis[cpuHand]}</div>
+                <div style={{ fontSize: '1.125rem' }}>{handNames[cpuHand]}</div>
+              </div>
             </div>
 
-            {/* 結果表示 */}
-            {playerHand && cpuHand && result && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center">
-                    <div className="text-gray-400 mb-2">あなた</div>
-                    <div className="text-4xl font-bold text-cyan-400">{handEmojis[playerHand]}</div>
-                    <div className="text-lg">{handNames[playerHand]}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-400 mb-2">CPU</div>
-                    <div className="text-4xl font-bold text-pink-400">{handEmojis[cpuHand]}</div>
-                    <div className="text-lg">{handNames[cpuHand]}</div>
-                  </div>
-                </div>
+            <div style={{
+              fontSize: '2rem',
+              fontWeight: 'bold',
+              marginBottom: '1rem',
+              color: result === 'win' ? '#68d391' : result === 'lose' ? '#fc8181' : '#f6e05e'
+            }}>
+              {result === 'win' ? '勝ち！🎉' : result === 'lose' ? '負け…😢' : 'あいこ！➖'}
+            </div>
 
-                <div className={`text-center p-6 rounded-2xl ${
-                  result === 'win' ? 'bg-gradient-to-r from-green-500/20 to-emerald-600/20' :
-                  result === 'lose' ? 'bg-gradient-to-r from-red-500/20 to-rose-600/20' :
-                  'bg-gradient-to-r from-yellow-500/20 to-amber-600/20'
-                }`}>
-                  <div className="text-3xl font-bold mb-2">
-                    {result === 'win' ? '勝ち！🎉' : result === 'lose' ? '負け…😢' : 'あいこ！➖'}
-                  </div>
-                  <div className="text-gray-300">
-                    {result === 'win' ? 'おめでとう！' : result === 'lose' ? '次は頑張ろう！' : 'もう一回！'}
-                  </div>
-                </div>
+            <button
+              onClick={resetGame}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#4a5568',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              もう一度遊ぶ
+            </button>
+          </div>
+        )}
 
-                <button
-                  onClick={resetGame}
-                  className="w-full py-3 bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl font-bold hover:from-gray-600 hover:to-gray-700 transition-all"
-                >
-                  もう一度遊ぶ
-                </button>
-              </div>
-            )}
-
-            {/* CPU思考中 */}
-            {cpuThinking && (
-              <div className="text-center p-6">
-                <div className="inline-flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-pink-400"></div>
-                  <span className="text-gray-300">CPUが考え中…</span>
-                </div>
-              </div>
-            )}
+        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>戦績</h2>
+            <button
+              onClick={resetScore}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'rgba(252, 129, 129, 0.2)',
+                color: '#fc8181',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              リセット
+            </button>
           </div>
 
-          {/* スコアエリア */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/20">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold">戦績</h2>
-              <button
-                onClick={resetScore}
-                className="px-4 py-2 bg-gradient-to-r from-red-500/20 to-rose-600/20 rounded-lg font-bold hover:from-red-400/30 hover:to-rose-500/30 transition-all"
-              >
-                リセット
-              </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(104, 211, 145, 0.1)', borderRadius: '0.75rem' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#68d391' }}>{score.win}</div>
+              <div style={{ color: '#a0aec0' }}>勝ち</div>
             </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="text-center p-4 bg-gradient-to-b from-green-500/20 to-emerald-600/20 rounded-2xl">
-                <div className="text-3xl mb-2">👑</div>
-                <div className="text-3xl font-bold text-green-400">{score.win}</div>
-                <div className="text-gray-300">勝ち</div>
-              </div>
-              <div className="text-center p-4 bg-gradient-to-b from-red-500/20 to-rose-600/20 rounded-2xl">
-                <div className="text-3xl mb-2">🏆</div>
-                <div className="text-3xl font-bold text-red-400">{score.lose}</div>
-                <div className="text-gray-300">負け</div>
-              </div>
-              <div className="text-center p-4 bg-gradient-to-b from-yellow-500/20 to-amber-600/20 rounded-2xl">
-                <div className="text-3xl mb-2">⚡</div>
-                <div className="text-3xl font-bold text-yellow-400">{score.draw}</div>
-                <div className="text-gray-300">あいこ</div>
-              </div>
+            <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(252, 129, 129, 0.1)', borderRadius: '0.75rem' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fc8181' }}>{score.lose}</div>
+              <div style={{ color: '#a0aec0' }}>負け</div>
             </div>
-
-            <div className="space-y-6">
-              <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl">
-                <h3 className="font-bold text-lg mb-2">遊び方</h3>
-                <ul className="space-y-2 text-gray-300">
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                    <span>グー・チョキ・パーのボタンをクリック</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                    <span>CPUがランダムに手を選びます</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                    <span>勝敗が自動的に判定されます</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl">
-                <h3 className="font-bold text-lg mb-2">じゃんけんルール</h3>
-                <div className="text-gray-300 space-y-1">
-                  <div>• グー ✊ は チョキ ✌️ に勝つ</div>
-                  <div>• チョキ ✌️ は パー ✋ に勝つ</div>
-                  <div>• パー ✋ は グー ✊ に勝つ</div>
-                </div>
-              </div>
+            <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: 'rgba(246, 224, 94, 0.1)', borderRadius: '0.75rem' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f6e05e' }}>{score.draw}</div>
+              <div style={{ color: '#a0aec0' }}>あいこ</div>
             </div>
           </div>
         </div>
-
-        <footer className="mt-12 text-center text-gray-400 text-sm">
-          <p>じゃんけんバトル - Next.js + Tailwind CSS</p>
-          <p className="mt-1">モダンなUIで楽しくじゃんけん！</p>
-        </footer>
       </div>
+
+      <footer style={{ textAlign: 'center', marginTop: '3rem', color: '#718096', fontSize: '0.875rem' }}>
+        <p>じゃんけんバトル - React + インラインスタイル</p>
+        <p style={{ marginTop: '0.25rem' }}>シンプルに楽しもう！</p>
+      </footer>
+
+      <style jsx global>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
